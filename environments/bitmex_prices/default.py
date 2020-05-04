@@ -66,11 +66,9 @@ class Environment(BaseBitmexEnvironment):
         # Calculate DONE
         # =====================================================================
         if self.max_episodes > 0:
-            # Reached max episode count
             if self._episodes == self.max_episodes:
                 done = True
 
-        # Balance increased and sold everything
         if self._balance > self.initial_balance and self._btc_held == 0:
             done = True
 
