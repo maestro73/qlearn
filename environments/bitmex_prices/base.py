@@ -89,7 +89,7 @@ class Environment(gym.Env):
             if self._episodes == self.max_episode_count:
                 done = True
 
-        # Balance increased, sell all as soon as posible
+        # Balance increased, "Sold everything!"
         if self._balance > self.initial_balance and self._btc_held == 0:
             done = True
 
