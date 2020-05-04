@@ -33,21 +33,22 @@ class Environment(BaseBitmexEnvironment):
         # NEUTRAL
         # =====================================================================
         if action == 0:
-            reward = -1
+            pass
 
         # LONG
         # =====================================================================
         if action == 1:
-            if self._balance > price:
-                can_buy_x = int(self._balance / price)
 
-                if can_buy_x > 0:
-                    self._btc_held = can_buy_x
-                    self._balance -= (can_buy_x * price)
-                    self._buy_price = price
+            balance = self._balance
+            if balance > self.initial_balance:
+                balance = self.initial_balance
 
-            else:
-                reward = -1
+            can_buy_x = int(balance / price)
+
+            if can_buy_x > 0:
+                self._btc_held = can_buy_x
+                self._balance -= (can_buy_x * price)
+                self._buy_price = price
 
         # SHORT
         # =====================================================================
@@ -55,8 +56,6 @@ class Environment(BaseBitmexEnvironment):
             if self._btc_held > 0:
                 self._balance += (self._btc_held * price)
                 self._btc_held = 0
-            else:
-                reward = -1
 
         # Calculate reward
         # =====================================================================

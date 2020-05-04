@@ -2,7 +2,8 @@
 from agents.default import Agent
 from environments.bitmex_prices.default import Environment
 from utils import plotLearning
-from settings import VISUALIZATION_ROOT
+from settings import MODEL_ROOT, VISUALIZATION_ROOT
+import datetime
 import numpy as np
 import tensorflow as tf
 
@@ -11,10 +12,17 @@ if __name__ == '__main__':
 
     tf.compat.v1.disable_eager_execution()
 
-    batch_size = 16  # Prices per observation
-    max_episodes = 50  # Max episode count, 0 - run until done
-    memory_size = batch_size * 4 * 1000  # 0 - All data
+    batch_size = 64  # Prices per observation
+    max_episodes = 100  # Max episode count, 0 - run until done
+    memory_size = 60000  # 0 - All available data
     balance = 100
+
+    gamma = 0.9  # 0.09 tutorial example
+    epsilon = 1.0
+    epsilon_end = 0.1  # 0.01 tutorial example
+    learning_rate = 0.01  # 0.001 Tutorial example
+
+    scenarios = 500
 
     env = Environment(
         batch_size=batch_size,
@@ -23,23 +31,22 @@ if __name__ == '__main__':
         max_episodes=max_episodes,
     )
 
-    learning_rate = 0.001  # 0.001 Tutorial example
-    scenarios = 10000
-
     agent = Agent(
-        gamma=0.9,  # 0.09 tutorial example
-        epsilon=1.0,
+        gamma=gamma,
+        epsilon=epsilon,
         learning_rate=learning_rate,
         input_dims=env.observation_space,
         action_count=env.action_space.n,
         mem_size=1000000,
         batch_size=batch_size,
-        epsilon_end=0.1,  # 0.01 tutorial example
+        epsilon_end=epsilon_end,
         model_name=env.model_name
     )
 
     score_memory = []
     eps_memory = []
+
+    _done = 0
 
     for i in range(scenarios):
 
@@ -64,6 +71,7 @@ if __name__ == '__main__':
         score_memory.append(score)
 
         if score > balance:
+            _done += 1
             print('Scenario: ', i,)
             print('Episodes:', info['episodes'], info['action_memory'])
             # print('Reward', reward)
@@ -71,8 +79,27 @@ if __name__ == '__main__':
             print('AVG:', np.average(score_memory))
             print('----------------------------------------------------------')
 
-    filename = f'{VISUALIZATION_ROOT}{env.model_name}.png'  # Tutorial material
-    x = [i+1 for i in range(scenarios)]  # Tutorial material
-    plotLearning(x, score_memory, eps_memory, filename)  # Tutorial material
+    print('Done count:', _done, 'Done %:', (_done*100) / scenarios)
 
-    agent.save_model()
+    positive_outcome = _done
+    positive_outcome_percentile = (_done*100) / scenarios
+
+    filename_ext = f'{datetime.datetime.now()}-bitmex'
+    filename_ext += f'-Scenarios{scenarios}'
+    filename_ext += f'-Episodes{max_episodes}'
+    filename_ext += f'-BatchSize{batch_size}'
+    filename_ext += f'-Gamma{gamma}'
+    filename_ext += f'-Epsilon{epsilon}'
+    filename_ext += f'-EpsilonEnd{epsilon_end}'
+    filename_ext += f'-LearningRate{learning_rate}'
+    filename_ext += f'-PositiveOutcomes{positive_outcome}'
+    filename_ext += f'-PositiveOutcomePerc{positive_outcome_percentile}'
+
+    chart_name = VISUALIZATION_ROOT + filename_ext + '.png'
+
+    # Tutorial material
+    plotLearning(range(1, scenarios + 1), score_memory, eps_memory, chart_name)
+
+    model_name = MODEL_ROOT + filename_ext + '.h5'
+
+    agent.save_model(model_name)
