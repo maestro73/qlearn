@@ -1,8 +1,8 @@
+# -*- coding: utf-8 -*-
 from agents.default import Agent
-from environments.bitmex_prices.base import Environment
+from environments.bitmex_prices.default import Environment
 from utils import plotLearning
 from settings import VISUALIZATION_ROOT
-import gym
 import numpy as np
 import tensorflow as tf
 
@@ -12,15 +12,15 @@ if __name__ == '__main__':
     tf.compat.v1.disable_eager_execution()
 
     batch_size = 16  # Prices per observation
-    max_episode_count = 50  # Max episode count, 0 - run until done
-    price_memory_size = batch_size * 4 * 1000  # 0 - All data
+    max_episodes = 50  # Max episode count, 0 - run until done
+    memory_size = batch_size * 4 * 1000  # 0 - All data
     balance = 100
 
     env = Environment(
         batch_size=batch_size,
         balance=balance,
-        price_memory_size=price_memory_size,
-        max_episode_count=max_episode_count,
+        memory_size=memory_size,
+        max_episodes=max_episodes,
     )
 
     learning_rate = 0.001  # 0.001 Tutorial example
