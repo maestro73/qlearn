@@ -66,6 +66,8 @@ class BaseBitmexEnvironment(gym.Env):
             if self._episodes == self.max_episodes:
                 done = True
 
+        # Add done statement here
+
         # Get next observation
         # =====================================================================
         observation = self._random_observation
