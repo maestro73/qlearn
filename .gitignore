@@ -1,0 +1,5 @@
+.venv
+__pycache__
+/bitmex/data/*
+/training_results/models/*.h5
+/training_results/visualization/*.png
